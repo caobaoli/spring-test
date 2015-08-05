@@ -8,36 +8,38 @@ import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.lxp.service.UserService;
-import com.lxp.service.impl.UserServiceImpl;
+import com.lxp.spring.service.StudentService;
+import com.lxp.spring.vo.Student;
 
 /**
  * @Package com.lxp.advice.test
- * @Class com.lxp.advice.test.TestAdvice
+ * @Class com.lxp.advice.test.TransactionTest
  * @Description: TODO
  * @Author LiXiaoPeng
- * @Date 2015年8月5日 下午2:56:31
+ * @Date 2015年8月6日 上午12:21:23
  * @Version V1.0
  * Copyright  Corporation 2015
  */
-public class TestAdvice {
-	private ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
-	
-	private UserService userService;
+public class TransactionTest {
+	private StudentService studentService;
 	
 	@Before
 	public void setUp() throws Exception {
-		userService = ctx.getBean("userService", UserService.class);
+		ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
+		studentService = ctx.getBean("stuService", StudentService.class);
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		userService = null;
+		studentService = null;
 	}
 
 	@Test
 	public void test() {
-		userService.save("张三");
+		Student student = new Student();
+		student.setStuName("并没有");
+		student.setStuAge(23);
+		studentService.save(student);
 	}
 
 }

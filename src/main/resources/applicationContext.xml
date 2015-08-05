@@ -1,55 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xmlns:aop="http://www.springframework.org/schema/aop"
 	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
-	<!-- 打开annotation配置 -->
-	<!-- <context:annotation-config />
-	<context:component-scan base-package="com.lxp.service"></context:component-scan> -->
-	
-	<!-- 被代理的类 -->
-	<bean id="userService" class="com.lxp.service.impl.UserServiceImpl"></bean>
-	
-	<!-- 代理类 -->
-	<bean id="loggerAdvice" class="com.lxp.advice.LoggerAdvice"></bean>
-	
-	<!-- 加强版的代理类 -->
-	<bean id="loggerAdvisor" class="org.springframework.aop.support.NameMatchMethodPointcutAdvisor">
-		<property name="advice" ref="loggerAdvice"></property>
-		<property name="mappedNames">
-			<list>
-				<value>update*</value>
-			</list>
-		</property>
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+	<!-- 加载properties文件 -->
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:db.properties"></property>
+	</bean>
+
+	<!-- 创建数据源连接池， 数据库的参数由外部properties文件注入 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${connection.driverClassName}"></property>
+		<property name="url" value="${connection.url}"></property>
+		<property name="username" value="${connection.username}"></property>
+		<property name="password" value="${connection.password}"></property>
+		<property name="initialSize" value="${connection.initialSize}"></property>
+		<property name="maxActive" value="${connection.maxActive}"></property>
+		<property name="minIdle" value="${connection.minIdle}"></property>
+		<property name="maxWait" value="${connection.maxWait}"></property>
+		<property name="removeAbandoned" value="${connection.removeAbandoned}"></property>
+		<property name="removeAbandonedTimeout" value="${connection.removeAbandonedTimeout}"></property>
 	</bean>
 	
-	
-	<!-- spring代理机制 -->
-	<!-- 
-	<bean id="userService" class="org.springframework.aop.framework.ProxyFactoryBean">
-		<property name="target" ref="userServiceTarget"></property>
-		<property name="interceptorNames">
-			<list>
-				<value>loggerAdvisor</value>
-			</list>
-		</property>
+	<bean id="stuDao" class="com.lxp.spring.dao.impl.StudentDaoImpl">
+		<property name="dataSource" ref="dataSource"></property>
 	</bean>
-	 -->
-	 
-	 <!-- spring自动代理，具体代理那些类 -->
-	 <bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
-	 	<property name="beanNames">
-	 		<list>
-	 			<value>*Service</value>
-	 		</list>
-	 	</property>
-	 	<property name="interceptorNames">
-	 		<list>
-	 			<value>loggerAdvisor</value>
-	 		</list>
-	 	</property>
-	 </bean>
+	
+	<bean id="stuService" class="com.lxp.spring.service.impl.StudentServiceImpl">
+		<property name="studentDao" ref="stuDao"></property>
+	</bean>
+	
+	<!-- 加载事务 -->
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<!-- aop的切入点 -->
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="save*" propagation="REQUIRED" isolation="DEFAULT"/>
+			<tx:method name="update*" propagation="REQUIRED" isolation="DEFAULT"/>
+			<tx:method name="delete*" propagation="REQUIRED" isolation="DEFAULT"/>
+			<tx:method name="find*" propagation="REQUIRED" read-only="true" isolation="DEFAULT"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<aop:config>
+		<aop:pointcut expression="execution(* com.lxp.spring.service..*.*(..))" id="methods"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="methods"/>
+	</aop:config>
 </beans>
