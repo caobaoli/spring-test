@@ -5,6 +5,8 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.lxp.service.UserService;
 import com.lxp.service.impl.UserServiceImpl;
@@ -19,12 +21,13 @@ import com.lxp.service.impl.UserServiceImpl;
  * Copyright  Corporation 2015
  */
 public class TestAdvice {
+	private ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
 	
 	private UserService userService;
 	
 	@Before
 	public void setUp() throws Exception {
-		userService = new UserServiceImpl();
+		userService = ctx.getBean("userService", UserService.class);
 	}
 
 	@After

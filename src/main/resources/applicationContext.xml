@@ -11,7 +11,7 @@
 	<context:component-scan base-package="com.lxp.service"></context:component-scan> -->
 	
 	<!-- 被代理的类 -->
-	<bean id="userServiceTarget" class="com.lxp.service.impl.UserServiceImpl"></bean>
+	<bean id="userService" class="com.lxp.service.impl.UserServiceImpl"></bean>
 	
 	<!-- 代理类 -->
 	<bean id="loggerAdvice" class="com.lxp.advice.LoggerAdvice"></bean>
@@ -21,13 +21,14 @@
 		<property name="advice" ref="loggerAdvice"></property>
 		<property name="mappedNames">
 			<list>
-				<value>save*</value>
+				<value>update*</value>
 			</list>
 		</property>
 	</bean>
 	
 	
 	<!-- spring代理机制 -->
+	<!-- 
 	<bean id="userService" class="org.springframework.aop.framework.ProxyFactoryBean">
 		<property name="target" ref="userServiceTarget"></property>
 		<property name="interceptorNames">
@@ -36,4 +37,19 @@
 			</list>
 		</property>
 	</bean>
+	 -->
+	 
+	 <!-- spring自动代理，具体代理那些类 -->
+	 <bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+	 	<property name="beanNames">
+	 		<list>
+	 			<value>*Service</value>
+	 		</list>
+	 	</property>
+	 	<property name="interceptorNames">
+	 		<list>
+	 			<value>loggerAdvisor</value>
+	 		</list>
+	 	</property>
+	 </bean>
 </beans>
