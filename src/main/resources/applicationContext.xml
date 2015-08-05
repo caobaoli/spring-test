@@ -16,12 +16,23 @@
 	<!-- 代理类 -->
 	<bean id="loggerAdvice" class="com.lxp.advice.LoggerAdvice"></bean>
 	
+	<!-- 加强版的代理类 -->
+	<bean id="loggerAdvisor" class="org.springframework.aop.support.NameMatchMethodPointcutAdvisor">
+		<property name="advice" ref="loggerAdvice"></property>
+		<property name="mappedNames">
+			<list>
+				<value>save*</value>
+			</list>
+		</property>
+	</bean>
+	
+	
 	<!-- spring代理机制 -->
 	<bean id="userService" class="org.springframework.aop.framework.ProxyFactoryBean">
 		<property name="target" ref="userServiceTarget"></property>
 		<property name="interceptorNames">
 			<list>
-				<value>loggerAdvice</value>
+				<value>loggerAdvisor</value>
 			</list>
 		</property>
 	</bean>
