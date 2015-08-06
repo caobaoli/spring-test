@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 
 import com.lxp.spring.dao.BaseDao;
 import com.lxp.spring.dao.StudentDao;
@@ -18,6 +19,7 @@ import com.lxp.spring.vo.Student;
  * @Version V1.0
  * Copyright  Corporation 2015
  */
+@Repository(value="stuDao")
 public class StudentDaoImpl extends BaseDao implements StudentDao, RowMapper<Student> {
 
 	@Override
